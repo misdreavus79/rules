@@ -1,0 +1,57 @@
+{
+  "name": "@eumdesigns/rules",
+  "version": "0.1.0",
+  "description": "The estate's rules as machinery: ESLint presets, rules-check, git hooks and Claude Code hooks.",
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/misdreavus79/rules.git"
+  },
+  "engines": {
+    "node": "^24.15.0"
+  },
+  "packageManager": "yarn@4.12.0",
+  "exports": {
+    "./eslint/base": {
+      "types": "./dist/eslint/base.d.ts",
+      "default": "./dist/eslint/base.js"
+    },
+    "./eslint/next": {
+      "types": "./dist/eslint/next.d.ts",
+      "default": "./dist/eslint/next.js"
+    },
+    "./eslint/strapi": {
+      "types": "./dist/eslint/strapi.d.ts",
+      "default": "./dist/eslint/strapi.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "rules-check": "dist/rules-check.js"
+  },
+  "files": [
+    "dist",
+    "hooks"
+  ],
+  "scripts": {
+    "build": "tsc && chmod 755 dist/rules-check.js",
+    "prepack": "yarn build",
+    "test": "vitest run",
+    "lint": "eslint src test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "peerDependencies": {
+    "eslint": "^9"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "eslint": "^9.39.5",
+    "prettier": "^3.9.10",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.72.1",
+    "vite": "^8.3.5",
+    "vitest": "^5.0.5"
+  }
+}
