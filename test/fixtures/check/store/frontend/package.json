@@ -1,0 +1,14 @@
+{
+  "name": "fixture-frontend",
+  "installConfig": { "hoistingLimits": "dependencies" },
+  "dependencies": {
+    "@mantine/carousel": "9.7.3",
+    "@mantine/core": "9.7.3"
+  },
+  "devDependencies": {
+    "eslint": "^9.39.5",
+    "typescript": "^5.9.3",
+    "vite": "^8.3.5",
+    "vitest": "^5.0.5"
+  }
+}
