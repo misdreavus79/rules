@@ -1,8 +1,8 @@
 export function compute(value: number) {
   const y = value;
   const res = y;
-  console.log(res);
-  return res;
+  console.log(y);
+  return y;
 }
 
 export function named(value: number): number {
