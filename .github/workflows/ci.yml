@@ -50,11 +50,13 @@ jobs:
         run: |
           rc=0
           yarn pack --dry-run > pack.log 2>&1 || rc=$?
-          cat pack.log
+          # Yarn colours its output on Actions: strip the ANSI codes before matching.
+          sed 's/\x1b\[[0-9;]*m//g' pack.log > pack.txt
+          cat pack.txt
           [ "$rc" -eq 0 ] || { echo "yarn pack --dry-run exit $rc"; exit 1; }
           fail=0
           for file in dist/rules-check.js dist/eslint/base.js dist/eslint/next.js dist/eslint/strapi.js hooks/git/pre-commit hooks/git/pre-push hooks/claude/settings.json; do
-            grep -qx "➤ YN0000: $file" pack.log || { echo "missing from the pack: $file"; fail=1; }
+            grep -qx "➤ YN0000: $file" pack.txt || { echo "missing from the pack: $file"; fail=1; }
           done
-          if grep -qE '^➤ YN0000: (src|test)/' pack.log; then echo "the pack holds src/ or test/"; fail=1; fi
+          if grep -qE '^➤ YN0000: (src|test)/' pack.txt; then echo "the pack holds src/ or test/"; fail=1; fi
           exit $fail
