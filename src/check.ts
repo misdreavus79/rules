@@ -39,6 +39,11 @@ function walk(root: string, visit: (file: string) => void): void {
   }
 }
 
+/** Source text without its line and block comments (a URL's `://` is kept). */
+function withoutComments(text: string): string {
+  return text.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/.*$/gm, '$1');
+}
+
 function readJson(file: string): Json {
   return JSON.parse(readFileSync(file, 'utf8')) as Json;
 }
@@ -264,7 +269,7 @@ const readers: Record<string, Reader> = {
       }
       if (
         /^layout\.(tsx|ts|jsx|js)$/.test(name) &&
-        readFileSync(file, 'utf8').includes('<Suspense')
+        withoutComments(readFileSync(file, 'utf8')).includes('<Suspense')
       ) {
         problems.push(`${relative(cwd, file)} holds a <Suspense> above its routes`);
       }
@@ -345,15 +350,20 @@ const readers: Record<string, Reader> = {
     });
   },
 
-  // Row 177
+  // Row 177: `true`, or `{ except: [...] }` for names that predate the ruling
+  // (DECISIONS 2026-09-04 "`price` is retail" rules NEW price fields).
   priceSuffix(value, cwd) {
-    asTrue(value);
+    const except =
+      value === true
+        ? []
+        : asStrings(asObject(value, 'true or { except }').except, 'priceSuffix.except');
     return attributes(cwd)
       .filter(
         (attribute) =>
           attribute.name.includes('price') &&
           attribute.name !== 'price' &&
-          !attribute.name.endsWith('_price'),
+          !attribute.name.endsWith('_price') &&
+          !except.includes(attribute.name),
       )
       .map((attribute) => `${attribute.file}: ${attribute.name} does not end _price`);
   },
@@ -510,7 +520,12 @@ export function decisionLineProblems(text: string, openHeading: string): string[
 
 const CITATION = /DECISIONS(?:\.md)?\s+(\d{4}-\d{2}-\d{2})\s+["“]([^"”]+)["”]/g;
 
-/** Each citation resolves to exactly one ruling with that date holding the words. */
+/** A ruling's text after its date and an optional "(Claude, pending Eli)"-style parenthesis. */
+function openingOf(line: string): string {
+  return line.replace(/^- \d{4}-\d{2}-\d{2} (\([^)]*\) )?/, '');
+}
+
+/** Each citation resolves to exactly one ruling with that date that OPENS with the words. */
 export function citationProblems(architecture: string, decisions: string): string[] {
   const rulings = decisions.split('\n').filter((line) => DATED.test(line));
   const problems: string[] = [];
@@ -520,7 +535,9 @@ export function citationProblems(architecture: string, decisions: string): strin
   for (const match of architecture.matchAll(CITATION)) {
     const date = match[1] ?? '';
     const words = (match[2] ?? '').replace(/\s+/g, ' ');
-    const hits = rulings.filter((line) => line.startsWith(`- ${date} `) && line.includes(words));
+    const hits = rulings.filter(
+      (line) => line.startsWith(`- ${date} `) && openingOf(line).startsWith(words),
+    );
     if (hits.length !== 1) {
       problems.push(`${date} "${words}" resolves to ${hits.length} rulings, not 1`);
     }
