@@ -1,0 +1,3 @@
+#!/bin/sh
+# @eumdesigns/rules layer 3: wired with `git config core.hooksPath node_modules/@eumdesigns/rules/hooks/git`.
+exec node "$(dirname "$0")/../../dist/rules-check.js" git pre-commit
