@@ -18,7 +18,9 @@ const BLOCK = [
   '# Conventions',
   '',
   '<!-- P472:SHARED:BEGIN -->',
+  '',
   '- A rule.',
+  '',
   '<!-- P472:SHARED:END -->',
   '',
 ].join('\n');
