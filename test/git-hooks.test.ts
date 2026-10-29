@@ -195,3 +195,21 @@ describe('the shipped hook files', () => {
     expect(byMatcher['Edit|Write'][0].command).toMatch(/rules-check hook edit$/);
   });
 });
+
+describe('the packed archive (the shape a git install unpacks)', () => {
+  it('keeps hooks/git/* executable, or git ignores them through core.hooksPath', () => {
+    const out = join(tempDir('pack'), 'package.tgz');
+    const pack = spawnSync('yarn', ['pack', '--out', out], { cwd: ROOT, encoding: 'utf8' });
+    expect(pack.status, `${pack.stdout}${pack.stderr}`).toBe(0);
+    const listing = spawnSync('tar', ['-tvzf', out], { encoding: 'utf8' }).stdout;
+    for (const name of [
+      'package/hooks/git/pre-commit',
+      'package/hooks/git/pre-push',
+      'package/dist/rules-check.js',
+    ]) {
+      const line = listing.split('\n').find((entry) => entry.endsWith(` ${name}`));
+      expect(line, name).toBeDefined();
+      expect(line?.slice(0, 10), name).toBe('-rwxr-xr-x');
+    }
+  });
+});
