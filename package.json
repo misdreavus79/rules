@@ -34,6 +34,12 @@
     "dist",
     "hooks"
   ],
+  "publishConfig": {
+    "executableFiles": [
+      "hooks/git/pre-commit",
+      "hooks/git/pre-push"
+    ]
+  },
   "scripts": {
     "build": "tsc && chmod 755 dist/rules-check.js",
     "prepack": "yarn build",
@@ -44,6 +50,11 @@
   },
   "peerDependencies": {
     "eslint": "^9"
+  },
+  "peerDependenciesMeta": {
+    "eslint": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@types/node": "^26.6.6",

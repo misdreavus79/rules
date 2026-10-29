@@ -106,6 +106,9 @@ __metadata:
     vitest: "npm:^5.0.5"
   peerDependencies:
     eslint: ^9
+  peerDependenciesMeta:
+    eslint:
+      optional: true
   bin:
     rules-check: dist/rules-check.js
   languageName: unknown
