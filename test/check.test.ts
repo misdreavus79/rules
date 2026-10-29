@@ -379,3 +379,64 @@ describe('rules-check check fails closed', () => {
     expect(only('noStatusAttribute', { noStatusAttribute: true }, dir).outcome).toBe('fail');
   });
 });
+
+describe('rules-check check: readers measured against the consumers (queue 2026-10-29)', () => {
+  const config = storeConfig();
+
+  it('row 33: a comment that names <Suspense> in a layout is not a boundary', () => {
+    const dir = storeRepo((tree) =>
+      writeFileSync(
+        join(tree, 'frontend/src/app/productos/layout.tsx'),
+        [
+          '// A LAYOUT only — never a loading.tsx, and no <Suspense> here.',
+          '/* nor a <Suspense> in a block comment */',
+          'export default function L({ children }) { return children; }',
+          '',
+        ].join('\n'),
+      ),
+    );
+    expect(only('loadingBoundary', config, dir).outcome).toBe('ok');
+  });
+
+  it('row 164: a same-date ruling that quotes the words elsewhere does not count', () => {
+    const dir = storeRepo((tree) =>
+      replaceIn(
+        join(tree, 'DECISIONS.md'),
+        '## Open',
+        '- 2026-07-30 Eli approved the lines "The template is a starter" and "Loading-boundary rule".\n\n## Open',
+      ),
+    );
+    expect(only('architecture', config, dir).outcome).toBe('ok');
+  });
+
+  it('row 164: words that are not a ruling’s opening words do not resolve', () => {
+    const dir = storeRepo((tree) =>
+      replaceIn(
+        join(tree, 'ARCHITECTURE.md'),
+        'So does',
+        'DECISIONS.md 2026-07-30 "No post-birth sync" does not. So does',
+      ),
+    );
+    const result = only('architecture', config, dir);
+    expect(result.outcome).toBe('fail');
+    expect(result.detail).toMatch(/No post-birth sync/);
+  });
+
+  it('row 177: priceSuffix { except } passes the names that predate the ruling and fails the rest', () => {
+    const dir = storeRepo((tree) =>
+      replaceIn(
+        join(tree, 'backend/src/components/order/line.json'),
+        '"unit_price"',
+        '"price_tier": { "type": "string" },\n    "unit_price"',
+      ),
+    );
+    expect(only('priceSuffix', { priceSuffix: { except: ['price_tier'] } }, dir).outcome).toBe(
+      'ok',
+    );
+    replaceIn(join(dir, 'backend/src/components/order/line.json'), '"unit_price"', '"price_cost"');
+    const result = only('priceSuffix', { priceSuffix: { except: ['price_tier'] } }, dir);
+    expect(result.outcome).toBe('fail');
+    expect(result.detail).toMatch(/price_cost/);
+    expect(result.detail).not.toMatch(/price_tier/);
+  });
+});
