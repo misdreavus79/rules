@@ -1,0 +1,6 @@
+{
+  "name": "fixture-store",
+  "private": true,
+  "workspaces": ["backend", "frontend"],
+  "devDependencies": { "prettier": "^3.8.3" }
+}

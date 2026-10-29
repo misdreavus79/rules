@@ -1,0 +1,7 @@
+{
+  "collectionName": "components_order_lines",
+  "attributes": {
+    "unit_price": { "type": "decimal" },
+    "display_label": { "type": "text" }
+  }
+}

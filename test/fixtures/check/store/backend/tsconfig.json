@@ -1,0 +1,9 @@
+{
+  // Backend TypeScript is strict (DECISIONS 2026-10-23).
+  "compilerOptions": {
+    "module": "CommonJS",
+    /* a block comment holding "strict": false must not count */
+    "strict": true,
+    "outDir": "dist",
+  },
+}

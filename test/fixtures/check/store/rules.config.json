@@ -1,0 +1,26 @@
+{
+  "generatedTypes": "backend/types/generated",
+  "eslintMajor": 9,
+  "typescriptBelow": 6,
+  "mantineCoreLock": true,
+  "hoistingLimits": { "file": "frontend/package.json", "value": "dependencies" },
+  "loadingBoundary": { "appDir": "frontend/src/app" },
+  "englishSegments": ["sign-in", "sign-up", "cart", "checkout", "account", "orders", "products", "categories", "search", "privacy"],
+  "reservedSegments": ["api"],
+  "topLevelIgnores": ["reports", "local-assets"],
+  "untracked": ["reports/", "DEVELOPMENT_NOTES.md", "PROMPT_HISTORY.md", "CLAUDE.md"],
+  "textAttributes": ["search_text", "display_label"],
+  "priceSuffix": true,
+  "requiredFiles": ["frontend/src/ui/README.md"],
+  "e2eWorkflow": ".github/workflows/e2e.yml",
+  "backendStrict": "backend/tsconfig.json",
+  "viteWithVitest": true,
+  "sharedBlock": { "file": "block.md", "hash": "887a79007952b22d052a4274579ce028574331a37b9442badb2f2838c7d68db8" },
+  "decisions": { "file": "DECISIONS.md", "openHeading": "## Open" },
+  "architecture": { "file": "ARCHITECTURE.md" },
+  "noStatusAttribute": true,
+  "setupStubs": {
+    "file": "frontend/vitest.setup.ts",
+    "names": ["matchMedia", "ResizeObserver", "IntersectionObserver", "NEXT_PUBLIC_STRAPI_URL", "scrollIntoView"]
+  }
+}

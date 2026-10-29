@@ -1,0 +1,11 @@
+{
+  "kind": "collectionType",
+  "collectionName": "products",
+  "attributes": {
+    "name": { "type": "string" },
+    "product_status": { "type": "enumeration", "enum": ["active", "retired"] },
+    "price": { "type": "decimal" },
+    "sale_price": { "type": "decimal" },
+    "search_text": { "type": "text" }
+  }
+}
