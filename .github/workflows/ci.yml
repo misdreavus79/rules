@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      # Corepack must be enabled before setup-node runs its yarn cache probe,
+      # otherwise the runner's bundled Yarn 1 answers `yarn config get cacheFolder`.
+      - name: Enable Corepack (Yarn 4 via packageManager field)
+        run: corepack enable
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Check formatting
+        run: yarn format:check
+
+      - name: Tests
+        run: yarn test
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Build
+        run: yarn build
+
+      # A gate: the packed file list must hold the built bin, the three presets
+      # and the hooks, and nothing from src/ or test/. The exit code is captured
+      # before the listing is read (the step's shell runs with -e, hence `|| rc=$?`).
+      - name: Pack listing
+        run: |
+          rc=0
+          yarn pack --dry-run > pack.log 2>&1 || rc=$?
+          cat pack.log
+          [ "$rc" -eq 0 ] || { echo "yarn pack --dry-run exit $rc"; exit 1; }
+          fail=0
+          for file in dist/rules-check.js dist/eslint/base.js dist/eslint/next.js dist/eslint/strapi.js hooks/git/pre-commit hooks/git/pre-push hooks/claude/settings.json; do
+            grep -qx "➤ YN0000: $file" pack.log || { echo "missing from the pack: $file"; fail=1; }
+          done
+          if grep -qE '^➤ YN0000: (src|test)/' pack.log; then echo "the pack holds src/ or test/"; fail=1; fi
+          exit $fail
