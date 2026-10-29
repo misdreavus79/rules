@@ -1,8 +1,10 @@
 name: CI
 
+# Queue branches run on push too: the package's proof installs the pushed head
+# before any pull request exists. This repository has no deploy host.
 on:
   push:
-    branches: [main]
+    branches: [main, 'queue/**']
   pull_request:
 
 concurrency:
