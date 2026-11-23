@@ -17,7 +17,7 @@ in the template's `DECISIONS.md`, not here.
 Consumed by git tag (tags are Eli's):
 
 ```sh
-yarn add -D @eumdesigns/rules@github:misdreavus79/rules#v0.1.0
+yarn add -D @eumdesigns/rules@github:misdreavus79/rules#v0.2.0
 ```
 
 Yarn packs a git dependency with its `prepack` script, so `dist/` is built on
@@ -69,11 +69,11 @@ export default defineConfig([
 The template's `presets/eslint.config.mjs` spreads the backend config, so it
 inherits `strapi` unchanged.
 
-| Preset   | Rows                                                                                                                                                          |
-| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `base`   | 21 `no-console` (scripts exempt); 152 `explicit-module-boundary-types` and 153 `id-length` at warn; `id-denylist` (`tmp`, `foo`, `res`, `obj`, `val`) at warn |
-| `next`   | `base`, plus 26 (the RSC guard), 29, 30, 31, 32, 37, 47, 75, 151, 166, 167, 180, 181, and 21 with `console.error` and `console.warn` allowed                  |
-| `strapi` | `base`, plus 16 (`db.query` and `entityService`; the seven sanctioned files and tests exempt), 41 (`limit: -1`), 50 (deep `@strapi/*/dist` imports), 151      |
+| Preset   | Rows                                                                                                                                                            |
+| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `base`   | 21 `no-console` (scripts exempt); 152 `explicit-module-boundary-types` and 153 `id-length` at error; `id-denylist` (`tmp`, `foo`, `res`, `obj`, `val`) at error |
+| `next`   | `base`, plus 26 (the RSC guard), 29, 30, 31, 32, 37, 47, 75, 151, 166, 167, 180, 181, and 21 with `console.error` and `console.warn` allowed                    |
+| `strapi` | `base`, plus 16 (`db.query` and `entityService`; the seven sanctioned files and tests exempt), 41 (`limit: -1`), 50 (deep `@strapi/*/dist` imports), 151        |
 
 Every `no-restricted-*` message names the `CLAUDE.md` bullet or `DECISIONS` line
 it enforces.
@@ -193,6 +193,15 @@ answer. Heredoc bodies, comments and quoted text are not read as commands.
 | 25, 27, 49 | need a parser or a ratchet list                                                                                  |
 | —          | the parity manifest and the test floors                                                                          |
 | 44         | a backfill check needs a schema diff and a backfill registry                                                     |
+
+## What v0.2 changes
+
+`id-length`, `id-denylist` and `@typescript-eslint/explicit-module-boundary-types`
+are errors in `base`, so `next` and `strapi` carry them at error too. Their options
+are unchanged. At error, `explicit-module-boundary-types` also reports an exported
+function's argument typed `any`, which `no-explicit-any` already refuses. A
+consumer that raised the three levels itself on v0.1.0 deletes its two override
+entries when it moves to v0.2.0. Nothing else changes.
 
 ## Development
 

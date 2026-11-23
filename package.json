@@ -1,6 +1,6 @@
 {
   "name": "@eumdesigns/rules",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "The estate's rules as machinery: ESLint presets, rules-check, git hooks and Claude Code hooks.",
   "license": "MIT",
   "type": "module",

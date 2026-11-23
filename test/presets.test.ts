@@ -65,7 +65,6 @@ function count(hits: Hit[], ruleId: string, severity?: number): number {
 }
 
 const ERROR = 2;
-const WARN = 1;
 const RESTRICTED = ['no-restricted-syntax', 'no-restricted-imports'];
 
 function restrictedHits(hits: Hit[]): Hit[] {
@@ -167,11 +166,11 @@ describe('base preset', () => {
     expect(await lint(base, 'base', 'scripts/tool.ts')).toEqual([]);
   });
 
-  it('rows 152, 153 and id-denylist warn', async () => {
+  it('rows 152, 153 and id-denylist are errors', async () => {
     const hits = await lint(base, 'base', 'src/sample.ts');
-    expect(count(hits, '@typescript-eslint/explicit-module-boundary-types', WARN)).toBe(1);
-    expect(count(hits, 'id-length', WARN)).toBe(1);
-    expect(count(hits, 'id-denylist', WARN)).toBe(1);
+    expect(count(hits, '@typescript-eslint/explicit-module-boundary-types', ERROR)).toBe(1);
+    expect(count(hits, 'id-length', ERROR)).toBe(1);
+    expect(count(hits, 'id-denylist', ERROR)).toBe(1);
   });
 });
 
@@ -226,7 +225,10 @@ describe('next preset: each row trips on its fixture and stays quiet elsewhere',
     [
       'row 151: no explicit any',
       'src/components/AnyType.ts',
-      { '@typescript-eslint/no-explicit-any': 1 },
+      {
+        '@typescript-eslint/no-explicit-any': 1,
+        '@typescript-eslint/explicit-module-boundary-types': 1,
+      },
     ],
     ['a clean component', 'src/components/Clean.tsx', {}],
   ];
@@ -246,12 +248,17 @@ describe('next preset: each row trips on its fixture and stays quiet elsewhere',
     expect(await lint(next, 'next', 'scripts/report.ts')).toEqual([]);
   });
 
-  it('rows 152, 153 and id-denylist warn without data and item', async () => {
+  it('rows 152, 153 and id-denylist are errors without data and item', async () => {
     const hits = await lint(next, 'next', 'src/components/Boundary.ts');
-    expect(count(hits, '@typescript-eslint/explicit-module-boundary-types', WARN)).toBe(1);
-    expect(count(hits, 'id-length', WARN)).toBe(1);
-    expect(count(hits, 'id-denylist', WARN)).toBe(1);
-    expect(hits.filter((hit) => hit.severity === ERROR)).toEqual([]);
+    expect(count(hits, '@typescript-eslint/explicit-module-boundary-types', ERROR)).toBe(1);
+    expect(count(hits, 'id-length', ERROR)).toBe(1);
+    expect(count(hits, 'id-denylist', ERROR)).toBe(1);
+    expect(
+      hits
+        .filter((hit) => hit.severity === ERROR)
+        .map((hit) => hit.ruleId)
+        .sort(),
+    ).toEqual(['@typescript-eslint/explicit-module-boundary-types', 'id-denylist', 'id-length']);
   });
 });
 
@@ -272,7 +279,14 @@ describe('strapi preset: each row trips on its fixture and stays quiet elsewhere
       { 'no-restricted-syntax': 1 },
     ],
     ['row 50: a deep @strapi dist import', 'src/admin/deep.ts', { 'no-restricted-imports': 1 }],
-    ['row 151: no explicit any', 'src/api/any.ts', { '@typescript-eslint/no-explicit-any': 1 }],
+    [
+      'row 151: no explicit any',
+      'src/api/any.ts',
+      {
+        '@typescript-eslint/no-explicit-any': 1,
+        '@typescript-eslint/explicit-module-boundary-types': 1,
+      },
+    ],
     ['row 21: console.log in app code', 'src/index.ts', { 'no-console': 1 }],
     ['row 21: scripts may log', 'scripts/seed.ts', {}],
   ];
